@@ -1,14 +1,3 @@
-#include <iostream>
-#include <cstring>
-#include <chrono>
-#include <ctime>
-#include <vector>
-#include <algorithm>
-#include <fstream>
-#include <thread>
-#include <set>
-
-
 #include <chrono>
 #include <string>
 #include <set>
@@ -168,40 +157,30 @@ public:
 };
 
 
-
 int main() {
-    // 1. Create a diary
     Diary myDiary;
 
-    // 2. Create a new event
     auto eventExpiryDate = std::chrono::system_clock::now() + std::chrono::hours(48); // event expires in two days
     std::string eventDescription = "Meeting with friends.";
 
-    // Adding the event to the diary
     myDiary.addEvent(eventExpiryDate, eventDescription);
 
-    // 3. Create a birthday
     Birthday bd;
     bd.endDate = std::chrono::system_clock::now() + std::chrono::hours(8760); // next birthday in a year
     bd.personInfo = {"John", "Doe", "Sr."}; // First name, Last name and Fatherland respectively
     bd.age = 30; // let's say John is 30 years old
 
-    // Adding the birthday to the diary
     myDiary.addBirthday(bd);
 
-    // 4. Output the event of today
     myDiary.outputEventToday();
-
-    // 5. Stop age updating for birthdays
     myDiary.stopUpdatingAges();
 
-   Event ev;
-ev.created = std::chrono::system_clock::now();
-ev.expires = eventExpiryDate;
-ev.description = eventDescription;
+    Event ev;
+    ev.created = std::chrono::system_clock::now();
+    ev.expires = eventExpiryDate;
+    ev.description = eventDescription;
 
-// Save the event to the file
-myDiary.saveFileEvents(ev);
+    myDiary.saveFileEvents(ev);
 
     return 0;
 }
