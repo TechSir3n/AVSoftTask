@@ -50,21 +50,46 @@ private:
   std::mutex mtx_events;
   std::mutex mtx_birthdays;
 
- void EventWorker() {
-  while (working) {
+void EventWorker() {
+    while (working) {
     std::this_thread::sleep_for(std::chrono::seconds(60));
-    {
-      std::lock_guard<std::mutex> lg(mtx_events);
-      auto now = std::chrono::system_clock::now();
-      for(auto it = events.begin(); it != events.end(); ){
-        if(now >= it->expires)
-          it = events.erase(it);
-        else
-          ++it;
-      }
+      {
+        std::lock_guard<std::mutex> lg(mtx_events);
+        auto now = std::chrono::system_clock::now();
+        for(auto it = events.begin(); it != events.end(); ){
+          if(now >= it->expires) {
+            it = events.erase(it);
+          } else {
+            ++it;
+          }
+        }
+    }
+    // Add mechanism for birthdays
+   {
+  std::lock_guard<std::mutex> lg(mtx_birthdays);
+  auto today = std::chrono::system_clock::now();
+  for(auto it = birthdays.begin(); it != birthdays.end(); ){
+    std::time_t birthday_time_t = std::chrono::system_clock::to_time_t(it->date);
+    std::tm birthday_tm = *std::localtime(&birthday_time_t);
+    std::time_t now_time_t = std::chrono::system_clock::to_time_t(today);
+    std::tm now_tm = *std::localtime(&now_time_t);
+
+    // Check if today is a birthday
+    if (now_tm.tm_mday == birthday_tm.tm_mday && now_tm.tm_mon == birthday_tm.tm_mon) {
+      std::cout << "Birthday Alert!! " << it->full_name.name << " is becoming " << it->age+1 << " today.\n";
+      Birthday updated_birthday = *it;
+      updated_birthday.age++; // increment age
+      it = birthdays.erase(it); // remove the old value
+      birthdays.insert(updated_birthday); // add the updated one
+    } else {
+      ++it;
     }
   }
  }
+    }
+ }
+
+ 
 
 public:
   Diary() : working(true), event_worker(&Diary::EventWorker, this) {}
@@ -248,8 +273,8 @@ public:
 
 int main() {
     Diary my_diary;
-    my_diary.Print();
-
+    my_diary.runInteractiveMode(); /* after choice one of the three option, choice option 3 as well */
+    my_diary.Print();  
     return 0;
 }
 
